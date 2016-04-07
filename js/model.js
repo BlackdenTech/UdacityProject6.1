@@ -58,7 +58,7 @@ function initMap() {
 		model[i].marker.addListener('click', (function(data) {
 			return function(model) {
 				yelpInfo(data);
-				infowindow.open(map, self.marker);
+				infowindow.open(map, data.marker);
 			};
 		})(model[i]));
 	}
