@@ -58,17 +58,21 @@ function initMap() {
 		model[i].marker.addListener('click', (function(data) {
 			return function(model) {
 				yelpInfo(data);
+				infowindow.open(map, self.marker);
 			};
 		})(model[i]));
 	}
-    ko.applyBindings(new ViewModel());
+	var infowindow = new google.maps.InfoWindow();
+	ko.applyBindings(new ViewModel());
 }
 
 //Yelp API\\
 //Assistance from https://discussions.udacity.com/t/how-to-make-ajax-request-to-yelp-api/13699
 //And https://discussions.udacity.com/t/yelp-api-oauth-issue/40606/7
 var yelpInfo = function (data, map) {
+// If I declare it here, its does not kick back setContent of Undefined...
 	var infowindow = new google.maps.InfoWindow();
+	
 	function nonce_generate() {
 		return (Math.floor(Math.random() * 1e12).toString());
 	};
@@ -80,42 +84,43 @@ var yelpInfo = function (data, map) {
 	var yelp_token = "Jb3f2kRRSOFsVeyRXipnNuRA9Mj6m5MV";
 	var yelp_tokenSecret = "rvlSk00ju7C8P5U9PnOaFM7rKNA";
 		
-   var parameters = {
-        oauth_consumer_key: yelp_key,
-        oauth_token: yelp_token,
-        oauth_nonce: nonce_generate(),
-        oauth_timestamp: Math.floor(Date.now() / 1000),
-        oauth_signature_method: 'HMAC-SHA1',
-        oauth_version: '1.0',
-        callback: 'cb',
-        term: data.name,
-        location: data.city,
-        limit: 1
-    };
+	var parameters = {
+		oauth_consumer_key: yelp_key,
+		oauth_token: yelp_token,
+		oauth_nonce: nonce_generate(),
+		oauth_timestamp: Math.floor(Date.now() / 1000),
+		oauth_signature_method: 'HMAC-SHA1',
+		oauth_version: '1.0',
+		callback: 'cb',
+		term: data.name,
+		location: data.city,
+		limit: 1
+	};
 
-    var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters, yelp_keySecret, yelp_tokenSecret);
+	var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters, yelp_keySecret, yelp_tokenSecret);
 
-    parameters.oauth_signature = encodedSignature;
+	parameters.oauth_signature = encodedSignature;
 
-    var settings = {
-        url: yelp_url,
-        data: parameters,
-        cache: true,
-        dataType: 'jsonp',
-        success: function(results) {
-            var contentString = '<div>' +
-                '<p align="center">' + results.businesses[0].name + '</p>' +
-                '<p> Rating: <img src="' + results.businesses[0].rating_img_url + '"</p>' +
-                '<p> Phone: ' + results.businesses[0].phone + '</p>' +
-                '<p> Address: ' + results.businesses[0].location.display_address + '</p>' +
-                '</div>';
-            console.log(infowindow);
-            infowindow.setContent(contentString);
-            infowindow.open(map, data.marker);
-        },
-    };
-    // Send AJAX query via jQuery library.
-    $.ajax(settings);
+	var settings = {
+		url: yelp_url,
+		data: parameters,
+		cache: true,
+		dataType: 'jsonp',
+		success: function(results) {
+			var contentString = '<div>' +
+				'<p align="center">' + results.businesses[0].name + '</p>' +
+				'<p> Rating: <img src="' + results.businesses[0].rating_img_url + '"</p>' +
+				'<p> Phone: ' + results.businesses[0].phone + '</p>' +
+				'<p> Address: ' + results.businesses[0].location.display_address + '</p>' +
+				'</div>';
+			infowindow.setContent(contentString);
+			infowindow.open(map, this.marker);
+			//Test to see if content is being passed
+			console.log(infowindow);
+		},
+	};
+	// Send AJAX query via jQuery library.
+	$.ajax(settings);
 };
 
 // Filter
