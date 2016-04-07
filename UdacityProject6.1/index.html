@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P|Stardos+Stencil' rel='stylesheet' type='text/css'>
+
+    <title>Geeky Philly</title>
+</head>
+
+<body>
+    <div id="header">
+        <h1>Geeky Philly</h1>
+        <h3>A map of nerdy and fun things to do in the city of brotherly love</h3>
+        <hr></hr>
+    </div>
+    
+    <div>
+        <input placeholder="Search…" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
+    </div>
+    
+    <div id="map"class="fullmap">
+    </div>
+
+    <button>Show Addresses</button>
+
+    <debug style="display: none">
+            <div>
+                <table>
+                    <tbody data-bind="foreach: model">
+                        <tr>
+                            <td data-bind="text:name"></td>
+                            <td data-bind="text:address"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    </debug>
+
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA2kjMGSxh_vkaXKfYxjZQbMbB1_uX9dUU&libraries=places"></script>
+<script src='js/knockout.js'></script>
+<script src='js/jquery-2.2.2.min.js'></script>
+<script src="lib/oauth-signature/dist/oauth-signature.js"></script>
+<script src="js/model.js"></script>
+
+</body>
+</html>
