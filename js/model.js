@@ -38,75 +38,37 @@ var model = [{
 
 //Setup the Google map.
 var map;
+var infowindow;
 
 function initMap() {
+	var self = this;
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {lat: 40.018200, lng: -75.149771},
 		zoom: 10,
 		scaleControl: true
-  	});
-};
+	});
 
-//Setup info window
-var infowindow;
-
-//ViewModel\\
-var viewModel = function() {
-	var that = this;
-	infowindow = new google.maps.InfoWindow();
-	var locations = [];
-	locations: ko.observableArray(locations)
-	query: ko.observable('')
-//Uses knockout to filter locations, source: http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
-	search: function search(value) {
-		viewModel.locations.removeAll();
-		for(var x in locations) {
-			if (locations[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-				viewModel.locations.push(locations[x]);
-			}
-		}
+	for (var i = 0; i < model.length; i++){
+		var latLng = new google.maps.LatLng(model[i].lat, model[i].lng);
+		var marker = model[i].marker = new google.maps.Marker({
+			position: latLng,
+			map: map,
+			title: model[i].name
+		});	
+		model[i].marker.addListener('click', (function(data) {
+			return function(model) {
+				yelpInfo(data);
+			};
+		})(model[i]));
 	}
-	this.setlocations = function () {
-//Loop through model to create locations
-		model.forEach(function(data){		
-			var marker = new google.maps.Marker({
-				map: map,
-				position: new google.maps.LatLng(data.lat, data.lng),
-				title: data.name,
-//Animated map marker
-				animation: google.maps.Animation.DROP
-			});
-			locations.push(marker);
-//Call to Yelp API for marker info
-			google.maps.event.addListener(marker, 'click', function() {
-				yelpInfo(data, map);
-			})
-		});
-	};
-	
-initMap();
-this.setlocations();   
-};
-
-//Activate knockout.js on pageload
-$(document).ready(function(){
-	ko.applyBindings(new viewModel());
-});
-
-//Run search filter
-viewModel.query.subscribe(viewModel.search);
-
-//Button to show/hide addresses, credit to http://stackoverflow.com/questions/13652835/button-text-toggle-in-jquery
-$("button").click(function(){
-	$("debug").toggle();
-	$(this).text(function(i, text){
-		return text === "Show Addresses" ? "Hide Addresses" : "Show Addresses";
-	})
-});
+    ko.applyBindings(new ViewModel());
+}
 
 //Yelp API\\
 //Assistance from https://discussions.udacity.com/t/how-to-make-ajax-request-to-yelp-api/13699
+//And https://discussions.udacity.com/t/yelp-api-oauth-issue/40606/7
 var yelpInfo = function (data, map) {
+	var infowindow = new google.maps.InfoWindow();
 	function nonce_generate() {
 		return (Math.floor(Math.random() * 1e12).toString());
 	};
@@ -118,42 +80,65 @@ var yelpInfo = function (data, map) {
 	var yelp_token = "Jb3f2kRRSOFsVeyRXipnNuRA9Mj6m5MV";
 	var yelp_tokenSecret = "rvlSk00ju7C8P5U9PnOaFM7rKNA";
 		
-	var parameters = {
-		oauth_consumer_key: yelp_key,
-		oauth_token: yelp_token,
-		oauth_nonce: nonce_generate(),
-		oauth_timestamp: Math.floor(Date.now()/1000),
-		oauth_signature_method: 'HMAC-SHA1',
-		oauth_version: '1.0',
-		callback: 'cb',
-		term: data.name,
-		location: data.city,
-		limit: 1
-	};
-		
-	var encodedSignature = oauthSignature.generate('GET',yelp_url, parameters, yelp_keySecret, yelp_tokenSecret);
-    	
-    parameters.oauth_signature = encodedSignature;	
-    	
-	var settings = {
-  		url: yelp_url,
-      	data: parameters,
-		cache: true,
-    	dataType: 'jsonp',
-	    success: function(results) {
-			var contentString = '<div>' +
-                '<h1>' + results.businesses[0].name + '</h1>' +
-                '<h3> Rating: <img src="' + results.businesses[0].rating_img_url + '"</h3>' +
-            	'<h3> Phone: ' + results.businesses[0].phone + '</h3>' +
-        		'<h3> Address: ' + results.businesses[0].location.display_address + '</h3>' +
+   var parameters = {
+        oauth_consumer_key: yelp_key,
+        oauth_token: yelp_token,
+        oauth_nonce: nonce_generate(),
+        oauth_timestamp: Math.floor(Date.now() / 1000),
+        oauth_signature_method: 'HMAC-SHA1',
+        oauth_version: '1.0',
+        callback: 'cb',
+        term: data.name,
+        location: data.city,
+        limit: 1
+    };
+
+    var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters, yelp_keySecret, yelp_tokenSecret);
+
+    parameters.oauth_signature = encodedSignature;
+
+    var settings = {
+        url: yelp_url,
+        data: parameters,
+        cache: true,
+        dataType: 'jsonp',
+        success: function(results) {
+            var contentString = '<div>' +
+                '<p align="center">' + results.businesses[0].name + '</p>' +
+                '<p> Rating: <img src="' + results.businesses[0].rating_img_url + '"</p>' +
+                '<p> Phone: ' + results.businesses[0].phone + '</p>' +
+                '<p> Address: ' + results.businesses[0].location.display_address + '</p>' +
                 '</div>';
+            console.log(infowindow);
             infowindow.setContent(contentString);
             infowindow.open(map, data.marker);
-    	    },
-	        fail: function() {
-			console.log('Yelp API failed to load.');
-    	    }
-	    };
-// Send AJAX query via jQuery library.
-    		$.ajax(settings);
+        },
+    };
+    // Send AJAX query via jQuery library.
+    $.ajax(settings);
 };
+
+// Filter
+//Assist from http://stackoverflow.com/questions/29557938/removing-map-pin-with-search
+var ViewModel = function() {
+	var self = this;
+	self.filter = ko.observable("");
+	self.searchBar = ko.computed( function() {
+		var locations = [];
+		model.forEach(function(data) {
+			if (data.name.toLowerCase().indexOf(self.filter().toLowerCase()) >= 0) {
+				locations.push(data);
+				data.marker.setVisible(true);
+			}else data.marker.setVisible(false);		
+		});
+		return locations;
+	});	
+};
+
+//Button to show/hide addresses, credit to http://stackoverflow.com/questions/13652835/button-text-toggle-in-jquery
+$("button").click(function(){
+	$(".place").toggle();
+	$(this).text(function(i, text){
+		return text === "Show Addresses" ? "Hide Addresses" : "Show Addresses";
+	})
+});

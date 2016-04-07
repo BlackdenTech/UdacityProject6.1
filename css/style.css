@@ -5,15 +5,16 @@ body {
   font-family: 'Press Start 2P', cursive;
 }
 
-debug {
+.place {
   font-family: 'Stardos Stencil', cursive;
+  display: none;
 }
 
 #header {
   text-align: center;
 }
 
-.fullmap {
+#map {
   width: 100%;
   height: 450px;
   overflow: hidden;
