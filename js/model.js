@@ -57,9 +57,9 @@ function initMap() {
 			title: model[i].name
 		});	
 		model[i].marker.addListener('click', (function(data) {
+			model[i].marker.setAnimation(google.maps.Animation.DROP);
 			return function(model) {
 				yelpInfo(data, this);
-	//			infowindow.open(map, data.marker);
 			};
 		})(model[i]));
 	}
@@ -109,18 +109,18 @@ var yelpInfo = function (data, marker) {
 		dataType: 'jsonp',
 		success: function(results) {
 			var contentString = '<div>' +
-				'<p align="center">' + results.businesses[0].name + '</p>' +
+				'<p align="left"><strong>' + results.businesses[0].name + '</strong></p>' +
 				'<p> Rating: <img src="' + results.businesses[0].rating_img_url + '"</p>' +
 				'<p> Phone: ' + results.businesses[0].phone + '</p>' +
 				'<p> Address: ' + results.businesses[0].location.display_address + '</p>' +
 				'</div>';
 			infowindow.setContent(contentString);
-			infowindow.open(map, this.marker);
+			infowindow.open(map, marker);
 		},
 		error: function(results) {
 			var failureString = 'Yelp API failed to load...';
 			infowindow.setContent(failureString);
-			infowindow.open(map, this.marker);
+			infowindow.open(map, marker);
 		},
 	};
 	// Send AJAX query via jQuery library.
@@ -141,16 +141,11 @@ var ViewModel = function() {
 			}else data.marker.setVisible(false);		
 		});
 		return locations;
-	});	
+	});
+	this.select = function(parent) {
+		yelpInfo(parent);
+	};
 };
-
-//Button to show/hide addresses, credit to http://stackoverflow.com/questions/13652835/button-text-toggle-in-jquery
-$("button").click(function(){
-	$(".place").toggle();
-	$(this).text(function(i, text){
-		return text === "Show Addresses" ? "Hide Addresses" : "Show Addresses";
-	})
-});
 
 var googleError = function() {
 	alert("Google Maps API failed to load...");
