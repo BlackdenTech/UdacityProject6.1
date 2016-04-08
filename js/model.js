@@ -57,8 +57,8 @@ function initMap() {
 		});	
 		model[i].marker.addListener('click', (function(data) {
 			return function(model) {
-				yelpInfo(data);
-				infowindow.open(map, data.marker);
+				yelpInfo(data, this);
+	//			infowindow.open(map, data.marker);
 			};
 		})(model[i]));
 	}
@@ -69,7 +69,7 @@ function initMap() {
 //Yelp API\\
 //Assistance from https://discussions.udacity.com/t/how-to-make-ajax-request-to-yelp-api/13699
 //And https://discussions.udacity.com/t/yelp-api-oauth-issue/40606/7
-var yelpInfo = function (data, map) {
+var yelpInfo = function (data, marker) {
 // If I declare it here, its does not kick back setContent of Undefined...
 	var infowindow = new google.maps.InfoWindow();
 	
