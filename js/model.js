@@ -1,3 +1,4 @@
+'use strict';
 //Model\\ 
 var model = [{
 	name: "Ontario Street Market",
@@ -115,8 +116,11 @@ var yelpInfo = function (data, marker) {
 				'</div>';
 			infowindow.setContent(contentString);
 			infowindow.open(map, this.marker);
-			//Test to see if content is being passed
-			console.log(infowindow);
+		},
+		error: function(results) {
+			var failureString = 'Yelp API failed to load...';
+			infowindow.setContent(failureString);
+			infowindow.open(map, this.marker);
 		},
 	};
 	// Send AJAX query via jQuery library.
@@ -129,7 +133,7 @@ var ViewModel = function() {
 	var self = this;
 	self.filter = ko.observable("");
 	self.searchBar = ko.computed( function() {
-		var locations = [];
+		var locations = ko.observableArray();
 		model.forEach(function(data) {
 			if (data.name.toLowerCase().indexOf(self.filter().toLowerCase()) >= 0) {
 				locations.push(data);
@@ -147,3 +151,7 @@ $("button").click(function(){
 		return text === "Show Addresses" ? "Hide Addresses" : "Show Addresses";
 	})
 });
+
+var googleError = function() {
+	alert("Google Maps API failed to load...");
+}

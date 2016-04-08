@@ -12,19 +12,20 @@
     <div id="header">
         <h1>Geeky Philly</h1>
         <h3>A map of nerdy and fun things to do in the city of brotherly love</h3>
-        <hr></hr>
+        <hr>
     </div>
     <button>Show Addresses</button>
     <input type="text" data-bind="textInput: filter">
         <ul data-bind="foreach: searchBar()" align="left">
             <li class="place" data-bind="text: name, click: $parent.select"></li>
         </ul>
-    </input>
     <div id="map"></div>
     <script src="lib/oauth-signature/dist/oauth-signature.js"></script>
     <script src="lib/jquery-2.2.3.js"></script>
 	<script src="lib/knockout-3.3.0.js"></script>
     <script src="js/model.js"></script>
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2kjMGSxh_vkaXKfYxjZQbMbB1_uX9dUU&callback=initMap"></script>
+    <!-- Thanks to my reviewer for suggesting adding an error condition for Google Maps API!
+    Source: https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282#onerror -->
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2kjMGSxh_vkaXKfYxjZQbMbB1_uX9dUU&callback=initMap" onerror="googleError()"></script>
 </body>
 </html>

@@ -2,11 +2,11 @@ body {
   padding: 0;
   margin: 0;
   border: 0;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 }
 
 .place {
-  font-family: 'Stardos Stencil', cursive;
+  font-family: "Stardos Stencil", cursive;
   display: none;
 }
 
