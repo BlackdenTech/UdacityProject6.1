@@ -60,7 +60,8 @@ function initMap() {
 			model[i].marker.setAnimation(google.maps.Animation.DROP);
 			return function(model) {
 				yelpInfo(data, this);
-			};
+				this.setAnimation(google.maps.Animation.BOUNCE);
+				};
 		})(model[i]));
 	}
 	var infowindow = new google.maps.InfoWindow();
@@ -143,7 +144,8 @@ var ViewModel = function() {
 		return locations;
 	});
 	this.select = function(parent) {
-		yelpInfo(parent);
+		yelpInfo(parent, parent.marker);
+		parent.marker.setAnimation(google.maps.Animation.BOUNCE);
 	};
 };
 
